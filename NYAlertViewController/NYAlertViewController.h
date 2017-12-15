@@ -36,6 +36,11 @@ typedef NS_ENUM(NSInteger, NYAlertViewControllerTransitionStyle) {
 
 /**
  The message displayed under the alert view's title
+*/
+@property (nonatomic) NSInteger titleLabelNumberOfLines;
+
+/**
+ The message displayed under the alert view's title
  */
 @property (nonatomic) NSString *message;
 
@@ -50,6 +55,11 @@ typedef NS_ENUM(NSInteger, NYAlertViewControllerTransitionStyle) {
  @discussion The default value of this property is nil. Set this property to a view that you create to add the custom view to the displayed alert view.
  */
 @property (nonatomic) UIView *alertViewContentView;
+
+/**
+ A Boolean value that determines whether the Buttons should be stacked verticaly even if there are just two buttons
+*/
+@property (nonatomic) BOOL showButtonsVertically;
 
 /**
  The transition style used to animate the alert view's presentation/dismissal transitions.

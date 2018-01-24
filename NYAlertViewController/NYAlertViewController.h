@@ -122,6 +122,11 @@ typedef NS_ENUM(NSInteger, NYAlertViewControllerTransitionStyle) {
 @property (nonatomic) UIFont *destructiveButtonTitleFont;
 
 /**
+ The text alingment used to align message text
+ */
+@property (nonatomic) NSTextAlignment messageTextAlignment;
+
+/**
  The color used to display the alert view's title
  
  @see title

@@ -198,12 +198,21 @@ static CGFloat const kDefaultDismissalAnimationDuration = 0.6f;
 
 @end
 
+@protocol NYAlertViewPresentationControllerDelegate <NSObject>
+
+- (void)presentationControllerTapped;
+
+@end
+
 @interface NYAlertViewPresentationController : UIPresentationController
 
 @property CGFloat presentedViewControllerHorizontalInset;
 @property CGFloat presentedViewControllerVerticalInset;
 @property (nonatomic) BOOL backgroundTapDismissalGestureEnabled;
+@property (nonatomic) BOOL cancelActionProvided;
 @property UIView *backgroundDimmingView;
+
+@property (nonatomic, weak) id<NYAlertViewPresentationControllerDelegate> delegate;
 
 @end
 
@@ -291,16 +300,23 @@ static CGFloat const kDefaultDismissalAnimationDuration = 0.6f;
 
 - (void)tapGestureRecognized:(UITapGestureRecognizer *)gestureRecognizer {
     if (self.backgroundTapDismissalGestureEnabled) {
-        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+        if(!self.cancelActionProvided){
+            [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+        } else {
+            if ([self.delegate respondsToSelector:@selector(presentationControllerTapped)]){
+                [self.delegate presentationControllerTapped];
+            }
+        }
     }
 }
 
 @end
 
-@interface NYAlertViewController () <UIGestureRecognizerDelegate, UIViewControllerTransitioningDelegate>
+@interface NYAlertViewController () <UIGestureRecognizerDelegate, UIViewControllerTransitioningDelegate, NYAlertViewPresentationControllerDelegate>
 
 @property NYAlertView *view;
 @property UIPanGestureRecognizer *panGestureRecognizer;
+@property (nonatomic) BOOL cancelActionProvided;
 @property (nonatomic, strong) id<UIViewControllerTransitioningDelegate> transitioningDelegate;
 
 - (void)panGestureRecognized:(UIPanGestureRecognizer *)gestureRecognizer;
@@ -396,6 +412,14 @@ static CGFloat const kDefaultDismissalAnimationDuration = 0.6f;
 
 - (void)setShowButtonsVertically:(BOOL)showButtonsVertically {
     self.view.showButtonsVertically = showButtonsVertically;
+}
+
+- (void)setMessageTextAlignment:(NSTextAlignment)messageTextAlignment{
+    self.view.messageTextAlignment = messageTextAlignment;
+}
+
+- (NSTextAlignment)messageTextAlignment{
+    return self.view.messageTextAlignment;
 }
 
 - (CGFloat)maximumWidth {
@@ -510,6 +534,7 @@ static CGFloat const kDefaultDismissalAnimationDuration = 0.6f;
             [button setTitleColor:self.cancelButtonTitleColor forState:UIControlStateNormal];
             [button setTitleColor:self.cancelButtonTitleColor forState:UIControlStateHighlighted];
             [button setBackgroundColor:self.cancelButtonColor forState:UIControlStateNormal];
+//            [button setBackgroundColor:self.cancelButtonColor];
 
             button.titleLabel.font = self.cancelButtonTitleFont;
         } else if (action.style == UIAlertActionStyleDestructive) {
@@ -737,6 +762,10 @@ static CGFloat const kDefaultDismissalAnimationDuration = 0.6f;
 }
 
 - (void)addAction:(UIAlertAction *)action {
+    if (action.style == UIAlertActionStyleCancel){
+        self.cancelActionProvided = YES;
+    }
+    
     _actions = [self.actions arrayByAddingObject:action];
 }
 
@@ -754,6 +783,21 @@ static CGFloat const kDefaultDismissalAnimationDuration = 0.6f;
     action.handler(action);
 }
 
+#pragma mark - NYAlertViewPresentationControllerDelegate
+
+- (void)presentationControllerTapped{
+    NYAlertAction *action = nil;
+    for (NYAlertAction *a in self.actions){
+        if (a.style == UIAlertActionStyleCancel){
+            action = a;
+        }
+    }
+    
+    if (action){
+        action.handler(action);
+    }
+}
+
 #pragma mark - UIViewControllerTransitioningDelegate
 
 - (UIPresentationController *)presentationControllerForPresentedViewController:(UIViewController *)presented
@@ -762,6 +806,8 @@ static CGFloat const kDefaultDismissalAnimationDuration = 0.6f;
     NYAlertViewPresentationController *presentationController = [[NYAlertViewPresentationController alloc] initWithPresentedViewController:presented
                                                                                                                   presentingViewController:presenting];
     presentationController.backgroundTapDismissalGestureEnabled = self.backgroundTapDismissalGestureEnabled;
+    presentationController.cancelActionProvided = self.cancelActionProvided;
+    presentationController.delegate = self;
     return presentationController;
 }
 

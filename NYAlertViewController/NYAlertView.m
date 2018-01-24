@@ -44,7 +44,11 @@
 @implementation UIButton (BackgroundColor)
 
 - (void)setBackgroundColor:(UIColor *)color forState:(UIControlState)state {
-    [self setBackgroundImage:[self imageWithColor:color] forState:state];
+    if ([color isEqual:[UIColor clearColor]] || [color isEqual:[UIColor whiteColor]]){
+        [self setBackgroundColor:color];
+    } else {
+        [self setBackgroundImage:[self imageWithColor:color] forState:state];
+    }
 }
 
 - (UIImage *)imageWithColor:(UIColor *)color {
@@ -240,9 +244,11 @@
         
         self.titleNumberOfLines = 2; // default value for title lines number
         
+        self.messageTextAlignment = NSTextAlignmentCenter; // default value for the message text alignment
+        
         _alertBackgroundView = [[UIView alloc] initWithFrame:CGRectZero];
         [self.alertBackgroundView setTranslatesAutoresizingMaskIntoConstraints:NO];
-        self.alertBackgroundView.backgroundColor = [UIColor colorWithWhite:0.97f alpha:1.0f];
+        self.alertBackgroundView.backgroundColor = [UIColor colorWithWhite:1.0f/*0.97f*/ alpha:1.0f];
         self.alertBackgroundView.layer.cornerRadius = 6.0f;
         [self addSubview:_alertBackgroundView];
         
@@ -261,7 +267,7 @@
         [self.messageTextView setContentHuggingPriority:0 forAxis:UILayoutConstraintAxisVertical];
         [self.messageTextView setContentCompressionResistancePriority:UILayoutPriorityDefaultHigh forAxis:UILayoutConstraintAxisVertical];
         self.messageTextView.editable = NO;
-        self.messageTextView.textAlignment = NSTextAlignmentCenter;
+        self.messageTextView.textAlignment = self.messageTextAlignment;
         self.messageTextView.textColor = [UIColor darkGrayColor];
         self.messageTextView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleSubheadline];
         self.messageTextView.text = NSLocalizedString(@"Message Text View", nil);
@@ -378,6 +384,11 @@
 - (void)setTitleNumberOfLines:(NSInteger)titleNumberOfLines{
     _titleNumberOfLines = titleNumberOfLines;
     self.titleLabel.numberOfLines = titleNumberOfLines;
+}
+
+- (void)setMessageTextAlignment:(NSTextAlignment)messageTextAlignment{
+    _messageTextAlignment = messageTextAlignment;
+    self.messageTextView.textAlignment = messageTextAlignment;
 }
 
 - (void)setMaximumWidth:(CGFloat)maximumWidth {

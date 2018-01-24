@@ -44,6 +44,8 @@ typedef NS_ENUM(NSInteger, NYAlertViewButtonType) {
 @property (nonatomic) UIColor *destructiveButtonColor;
 @property (nonatomic) UIColor *destructiveButtonTitleColor;
 
+@property (nonatomic) NSTextAlignment messageTextAlignment;
+
 @property (nonatomic) BOOL showButtonsVertically;
 @property (nonatomic) CGFloat buttonCornerRadius;
 @property (nonatomic) CGFloat maximumWidth;
@@ -52,7 +54,6 @@ typedef NS_ENUM(NSInteger, NYAlertViewButtonType) {
 
 @property (nonatomic, readonly) NSLayoutConstraint *backgroundViewVerticalCenteringConstraint;
 
-//@property (nonatomic) NSArray *actions;
 @property (nonatomic) NSArray *actionButtons;
 
 @property (nonatomic) NSArray *textFields;
